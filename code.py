@@ -589,16 +589,16 @@ class GameApp:
         """Handle game over scenario"""
         for widget in self.game_frame.winfo_children():
             widget.destroy()
-            
-        self.game_over = True
-       
+
         if self.bank > 0:
-            if self.player_turn:
+            if self.player_turn == True :
                 self.player_score += self.bank
             else:
                 self.ai_score += self.bank
                 
             self.bank = 0
+            
+        self.game_over = True
         
         # Create end game panel
         end_panel = tk.Frame(self.game_frame, bd=2, relief=tk.RIDGE, padx=20, pady=20)
