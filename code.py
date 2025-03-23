@@ -68,14 +68,7 @@ def evaluate_state(node):
         number_factor *= 3  # Accorder plus d'importance aux petits nombres
     if node.number < 20:
         number_factor *= 5  # Encore plus important quand on s'approche de la fin
-    
-    # Examiner la parité du nombre - préférer les nombres qui avantageront l'IA
-    if node.is_player_turn:
-        # Si le joueur doit jouer, préférer un nombre impair (le joueur gagnera +1)
-        parity_bonus = 50 if node.number % 2 == 1 else -50
-    else:
-        # Si l'IA doit jouer, préférer un nombre pair (l'IA perdra -1, mais c'est mieux que +1 pour l'adversaire)
-        parity_bonus = 50 if node.number % 2 == 0 else -50
+
     
     # Bonus pour les multiples de 5 et 10 (donnent +1 à la banque)
     bank_bonus = 100 if node.number % 5 == 0 else 0
@@ -85,13 +78,11 @@ def evaluate_state(node):
         score += number_factor * 0.5  # Moins important pour le joueur
         score -= node.player_score * 80  # Score du joueur est négatif pour l'IA
         score += node.ai_score * 100  # Score de l'IA est positif
-        score += parity_bonus
         score += bank_bonus * 0.5  # La banque est moins importante si c'est au joueur de jouer
     else:
         score += number_factor  # Plus important pour l'IA
         score -= node.player_score * 100  # Score du joueur est très négatif pour l'IA
         score += node.ai_score * 120  # Score de l'IA est très positif
-        score += parity_bonus
         score += bank_bonus  # La banque est importante si c'est à l'IA de jouer
     
     # Le contrôle de la banque ajoute de la valeur
@@ -110,7 +101,7 @@ def evaluate_state(node):
         elif new_number % 2 == 0 and not node.is_player_turn:
             score += 30  # Bon pour l'IA si elle peut obtenir un nombre pair
         elif new_number % 2 == 1 and node.is_player_turn:
-            score -= 30  # Mauvais pour l'IA si le joueur peut obtenir un nombre impair
+            score -= 60  # Mauvais pour l'IA si le joueur peut obtenir un nombre impair
     
     return score
 
