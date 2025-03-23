@@ -591,7 +591,7 @@ class GameApp:
             widget.destroy()
 
         if self.bank > 0:
-            if self.player_turn == True :
+            if self.player_turn == False :
                 self.player_score += self.bank
             else:
                 self.ai_score += self.bank
