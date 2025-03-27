@@ -51,57 +51,56 @@ def process_turn(new_number, player_score, bank):
 
 def evaluate_state(node):
     """Evaluate the game state from the perspective of the maximizing player (AI)"""
-    # Si c'est un état terminal (nombre ≤ 10), vérifier si AI gagne ou perd
+    # If it's a terminal state (number ≤ 10), check if AI wins or loses
     if node.is_terminal():
-        if not node.is_player_turn:  # Le joueur doit jouer mais ne peut plus, l'IA gagne
+        if not node.is_player_turn:  # Player must play but can't, AI wins
             return 10000
-        else:  # L'IA doit jouer mais ne peut plus, l'IA perd
+        else:  # AI must play but can't, AI loses
             return -10000
     
-    # Initialiser le score
+    # Initialize the score
     score = 0
     
-    # Facteur pour le nombre actuel - plus il est petit, mieux c'est pour celui qui joue ensuite
-    # Mais avec plus d'importance quand on approche de 10
+    # Factor for the current number - smaller is better for the next player
+    # With more importance as we approach 10
     number_factor = (100 - node.number)
     if node.number < 50:
-        number_factor *= 3  # Accorder plus d'importance aux petits nombres
+        number_factor *= 3  # Give more importance to small numbers
     if node.number < 20:
-        number_factor *= 5  # Encore plus important quand on s'approche de la fin
-
+        number_factor *= 5  # Even more important when approaching the end
     
-    # Bonus pour les multiples de 5 et 10 (donnent +1 à la banque)
+    # Bonus for multiples of 5 and 10 (give +1 to the bank)
     bank_bonus = 100 if node.number % 5 == 0 else 0
     
-    # Valoriser différemment selon qui joue
+    # Evaluate differently depending on whose turn it is
     if node.is_player_turn:
-        score += number_factor * 0.5  # Moins important pour le joueur
-        score -= node.player_score * 80  # Score du joueur est négatif pour l'IA
-        score += node.ai_score * 100  # Score de l'IA est positif
-        score += bank_bonus * 0.5  # La banque est moins importante si c'est au joueur de jouer
+        score += number_factor * 0.5  # Less important for the player
+        score -= node.player_score * 80  # Player's score is negative for AI
+        score += node.ai_score * 100  # AI's score is positive
+        score += bank_bonus * 0.5  # Bank is less important if it's the player's turn
     else:
-        score += number_factor  # Plus important pour l'IA
-        score -= node.player_score * 100  # Score du joueur est très négatif pour l'IA
-        score += node.ai_score * 120  # Score de l'IA est très positif
-        score += bank_bonus  # La banque est importante si c'est à l'IA de jouer
+        score += number_factor  # More important for AI
+        score -= node.player_score * 100  # Player's score is very negative for AI
+        score += node.ai_score * 120  # AI's score is very positive
+        score += bank_bonus  # Bank is important if it's AI's turn
     
-    # Le contrôle de la banque ajoute de la valeur
+    # Controlling the bank adds value
     score += node.bank * 40
     
-    # Analyse des diviseurs possibles pour le nombre actuel
-    # Préférer des nombres qui ont des divisions avantageuses
+    # Analyze possible divisors for the current number
+    # Prefer numbers with advantageous divisions
     for divisor in [2, 3, 4]:
         new_number = round(node.number / divisor)
-        # Vérifier si la division donne un nombre qui avantage le joueur suivant
-        if new_number <= 10:  # Si ça termine le jeu
-            if node.is_player_turn:  # Si c'est au joueur de jouer
-                score -= 500  # Mauvais pour l'IA
-            else:  # Si c'est à l'IA de jouer
-                score += 500  # Bon pour l'IA
+        # Check if the division gives a number that advantages the next player
+        if new_number <= 10:  # If it ends the game
+            if node.is_player_turn:  # If it's the player's turn
+                score -= 500  # Bad for AI
+            else:  # If it's AI's turn
+                score += 500  # Good for AI
         elif new_number % 2 == 0 and not node.is_player_turn:
-            score += 30  # Bon pour l'IA si elle peut obtenir un nombre pair
+            score += 30  # Good for AI if it can get an even number
         elif new_number % 2 == 1 and node.is_player_turn:
-            score -= 60  # Mauvais pour l'IA si le joueur peut obtenir un nombre impair
+            score -= 60  # Bad for AI if the player can get an odd number
     
     return score
 
